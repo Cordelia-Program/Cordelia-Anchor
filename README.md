@@ -6,6 +6,8 @@
 
 Rather than a normal M-of-N owner scheme, Cordelia is created using Strata model. The owners of the multi-sig can be divided into different groups (known as Stratum) and threshold can be set separately for every stratum. To successfully execute any transaction, owners from every stratum have to vote in atleast equal to stratum's threshold count.
 
+Program Address: 2h4ZQdRQESZETBWh6mC9pgLGca8ytMR5GcCqMsUACyyY (deployed on both mainnet and devnet)
+
 ## Program State Model
 
 - Multi-sig has `strata` field which is a vector of `Stratum`. The first element of `strata` vector is a base `Stratum` and must have at least 1 owner. Every `Stratum` can have separate owners and threshold and an individual `Pubkey` can only be a member of a single stratum. `multi_sig` account is seeded using the creator's key and a unique name chosen at the time of creation (can be of maximum 25 characters).
