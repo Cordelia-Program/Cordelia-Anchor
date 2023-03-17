@@ -55,6 +55,7 @@ pub fn change_multisig_realloc_handler(
 
     multi_sig.version += 1;
 
+    ctx.accounts.multi_sig.reload()?;
+
     Ok(())
 }
-

@@ -19,7 +19,6 @@ pub struct AcceptTransaction<'info> {
     pub transaction: Account<'info, Transaction>,
 
     #[account(
-        mut,
         seeds = [
             b"multi_sig",
             multi_sig.creator.as_ref(),
@@ -31,7 +30,6 @@ pub struct AcceptTransaction<'info> {
     pub multi_sig: Account<'info, MultiSig>,
 
     #[account(
-        mut,
         constraint = multi_sig.is_owner_stratum(signer.key(), owner_stratum as usize).is_some() @ Errors::InvalidOwner
     )]
     pub signer: Signer<'info>

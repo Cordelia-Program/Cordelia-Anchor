@@ -4,7 +4,7 @@ pub mod state;
 pub mod instructions;
 
 use instructions::*;
-use state::{Stratum, InstructionData, ChangeReallocType, ChangeType, VersionedInstructionData};
+use state::{Stratum, InstructionData, ChangeReallocType, ChangeType, VersionedInstructionData, InstructionAccount};
 
 declare_id!("2h4ZQdRQESZETBWh6mC9pgLGca8ytMR5GcCqMsUACyyY");
 
@@ -33,10 +33,22 @@ pub mod cordelia_program {
 
     pub fn create_versioned_tx_data(
         ctx: Context<CreateVersionedTxData>, 
-        vesioned_ixs: Vec<VersionedInstructionData>,
+        versioned_ixs: Vec<VersionedInstructionData>,
         lookup_table: Option<Pubkey>
     ) -> Result<()> {
-        create_versioned_tx_data_handler(ctx, vesioned_ixs, lookup_table)
+        create_versioned_tx_data_handler(ctx, versioned_ixs, lookup_table)
+    }
+
+    pub fn add_tx_data(
+        ctx: Context<AddTxData>, 
+        keys: Vec<InstructionAccount>,
+        instruction_index: u8
+    ) -> Result<()> {
+        add_tx_data_handler(ctx, keys, instruction_index)
+    }
+
+    pub fn finalize_tx_data(ctx: Context<FinalizeTxData>) -> Result<()> {
+        finalize_tx_data_handler(ctx)
     }
 
     pub fn vote_transaction(
@@ -98,6 +110,9 @@ pub enum Errors {
     #[msg("The signer is not the owner of the multi-sig")]
     InvalidOwner,
 
+    #[msg("The signer is not the creator of this transaction")]
+    InvalidCreator,
+
     #[msg("Duplicate owner provided in the stratum")]
     DuplicateOwner,
 
@@ -137,8 +152,8 @@ pub enum Errors {
     #[msg("Insufficient votes to accept the transaction")]
     InsufficientVotes,
 
-    #[msg("The transaction is already initiated")]
-    AlreadyInitiated,
+    #[msg("The transaction data is already finalized")]
+    AlreadyFinalized,
 
     #[msg("The transaction is not accepted by the owners")]
     NotAccepted,
@@ -152,4 +167,6 @@ pub enum Errors {
     #[msg("Multisig name is too long")]
     InvalidNameLen,
     
+    #[msg("Tx Data doesn't have the provided element")]
+    InvalidTxDataIndex
 }

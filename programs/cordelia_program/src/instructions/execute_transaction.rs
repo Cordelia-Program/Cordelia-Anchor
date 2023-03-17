@@ -13,7 +13,8 @@ pub struct ExecuteTransaction<'info> {
         ],
         bump = transaction.bump,
         constraint = transaction.multi_sig == multi_sig.key() @ Errors::InvalidTransaction,
-        constraint = transaction.status == TransactionStatus::Accepted @ Errors::NotAccepted
+        constraint = transaction.status == TransactionStatus::Accepted @ Errors::NotAccepted,
+        address = tx_data.transaction @ Errors::InvalidTxData
     )]
     pub transaction: Account<'info, Transaction>,
 
@@ -23,13 +24,10 @@ pub struct ExecuteTransaction<'info> {
             transaction.key().as_ref(),
         ],
         bump = tx_data.bump,
-        constraint = tx_data.transaction == transaction.key() @ Errors::InvalidTxData,
     )]
     pub tx_data: Account<'info, TxData>,
 
-
     #[account(
-        mut,
         seeds = [
             b"multi_sig",
             multi_sig.creator.as_ref(),

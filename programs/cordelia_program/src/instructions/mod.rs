@@ -7,6 +7,8 @@ mod vote_transaction;
 mod accept_transaction;
 mod create_tx_data;
 mod create_versioned_tx_data;
+mod add_tx_data;
+mod finalize_tx_data;
 
 pub use create_multisig::*;
 pub use create_transaction::*;
@@ -17,3 +19,5 @@ pub use vote_transaction::*;
 pub use accept_transaction::*;
 pub use create_tx_data::*;
 pub use create_versioned_tx_data::*;
+pub use add_tx_data::*;
+pub use finalize_tx_data::*;

@@ -8,7 +8,7 @@ cordelia_program = "2h4ZQdRQESZETBWh6mC9pgLGca8ytMR5GcCqMsUACyyY"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "mainnet"
 wallet = "F:\\main.json"
 
 [scripts]

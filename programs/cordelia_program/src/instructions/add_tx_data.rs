@@ -1,9 +1,9 @@
 use anchor_lang::prelude::*;
-use crate::{state::{MultiSig, Transaction, TransactionStatus, InstructionData, TxData, TransactionType},Errors};
+use crate::{state::{MultiSig, Transaction, TransactionStatus, TxData, InstructionAccount},Errors};
 
 #[derive(Accounts)]
-#[instruction(instructions: Vec<InstructionData>)]
-pub struct CreateTxData<'info> {
+#[instruction(keys: Vec<InstructionAccount>)]
+pub struct AddTxData<'info> {
     #[account(
         seeds = [
             b"transaction",
@@ -13,19 +13,21 @@ pub struct CreateTxData<'info> {
         bump = transaction.bump,
         constraint = transaction.multi_sig == multi_sig.key() @ Errors::InvalidTransaction,
         constraint = transaction.status == TransactionStatus::Initiated @ Errors::AlreadyFinalized,
-        constraint = transaction.version == multi_sig.version @ Errors::VersionOutdated
+        constraint = transaction.version == multi_sig.version @ Errors::VersionOutdated,
+        address = tx_data.transaction @ Errors::InvalidTxData
     )]
     pub transaction: Account<'info, Transaction>,
 
     #[account(
-        init,
-        space = TxData::len(TransactionType::Legacy { data: instructions}),
-        payer = signer,
+        mut,
+        realloc = tx_data.realloc_bytes(&keys),
+        realloc::payer = signer,
+        realloc::zero = false,
         seeds = [
             b"data",
             transaction.key().as_ref(),
         ],
-        bump,
+        bump = tx_data.bump,
     )]
     pub tx_data: Account<'info, TxData>,
 
@@ -48,19 +50,16 @@ pub struct CreateTxData<'info> {
     pub system_program: Program<'info, System>
 }
 
-pub fn create_tx_data_handler(
-    ctx: Context<CreateTxData>, 
-    instructions: Vec<InstructionData>
+pub fn add_tx_data_handler(
+    ctx: Context<AddTxData>, 
+    keys: Vec<InstructionAccount>,
+    instruction_index: u8
 ) -> Result<()> {
-    let transaction = &ctx.accounts.transaction;
     let tx_data = &mut ctx.accounts.tx_data;
+    let i_index = instruction_index as usize;
 
-    **tx_data = TxData::new(
-        transaction.key(), 
-        instructions, 
-        *ctx.bumps.get("tx_data").unwrap(),
-        None
-    );
-
+    require_gte!(tx_data.instructions.len(), i_index, Errors::InvalidTxDataIndex);
+    tx_data.instructions[i_index].keys.extend_from_slice(&keys);
+    
     Ok(())
 }

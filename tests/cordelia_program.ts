@@ -90,6 +90,24 @@ describe("cordelia_program", () => {
     console.log("Your transaction signature", tx);
   })
 
+  it("It finalizes data to the transaction!", async () => {
+    const transaction = await getTransactionKey(false);
+
+    const [txData] = web3.PublicKey.findProgramAddressSync([
+      utils.bytes.utf8.encode("data"),
+      transaction.toBytes(),
+    ],program.programId);
+
+    const tx = await program.methods.finalizeTxData()
+    .accounts({
+      multiSig,
+      transaction,
+      txData
+    })
+    .rpc()
+
+    console.log("Your transaction signature", tx);
+  })
 
   it("It votes for the transaction!", async () => {
     const transaction = await getTransactionKey(true);

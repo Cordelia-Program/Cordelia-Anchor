@@ -23,8 +23,6 @@ pub struct ChangeMultisig<'info> {
         signer
     )]
     pub authority: AccountInfo<'info>,
-
-    pub system_program: Program<'info, System>
 }
 
 pub fn change_multisig_handler(
@@ -49,4 +47,3 @@ pub fn change_multisig_handler(
 
     Ok(())
 }
-

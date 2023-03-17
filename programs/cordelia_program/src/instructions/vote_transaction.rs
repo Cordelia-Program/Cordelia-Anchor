@@ -32,7 +32,6 @@ pub struct VoteTransaction<'info> {
     pub vote_record: Account<'info, VoteRecord>,
 
     #[account(
-        mut,
         seeds = [
             b"multi_sig",
             multi_sig.creator.as_ref(),

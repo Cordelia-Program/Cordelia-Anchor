@@ -28,6 +28,13 @@ impl TxData {
         size
     }
 
+    pub fn realloc_bytes(&self, new_keys: &Vec<InstructionAccount>) -> usize {
+        let current_len = TxData::len(TransactionType::Legacy { data: self.instructions.clone() });
+
+        let require_bytes = new_keys.len() * (32 + 1 + 1);
+        current_len + require_bytes
+    }
+    
     pub fn new(
         transaction: Pubkey, 
         instructions: Vec<InstructionData>,
