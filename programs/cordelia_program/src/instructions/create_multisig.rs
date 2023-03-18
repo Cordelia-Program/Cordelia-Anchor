@@ -7,7 +7,7 @@ pub struct CreateMultisig<'info> {
     #[account(
         init,
         payer=signer,
-        space = MultiSig::len(strata, &name),
+        space = MultiSig::len(&strata, &name),
         seeds = [
             b"multi_sig",
             signer.key().as_ref(),
@@ -24,19 +24,20 @@ pub struct CreateMultisig<'info> {
 }
 
 pub fn create_multisig_handler(ctx: Context<CreateMultisig>, strata: Vec<Stratum>, name: String) -> Result<()> {
-    let mut strata = strata;
+    let mut strata_mut = strata.clone();
     require_gte!(25, name.len(), Errors::InvalidNameLen);
 
     let strata_len = strata.len();   
     require_gt!(strata_len, 0, Errors::InvalidStrataLen);
     require_gte!(u8::MAX as usize, strata_len, Errors::InvalidStrataLen);
 
-    for (s_index,stratum) in strata.iter().enumerate() {
-        let owners = &stratum.owners;
+    for (s_index,stratum) in strata_mut.iter_mut().enumerate() {
+        let owners = &mut stratum.owners;
         let owners_len = owners.len();
 
-        require_gt!(owners.len(), 0, Errors::InvalidOwnersCount);
-        require_gte!(1220, owners.len(), Errors::InvalidOwnersCount);
+        require_gt!(owners_len, 0, Errors::InvalidOwnersCount);
+        require_gte!(1220, owners_len, Errors::InvalidOwnersCount);
+        require_gte!(owners_len, stratum.m as usize, Errors::ThresholdExceeds);
 
         if s_index == 0 {
             require_gt!(stratum.m as usize, 0, Errors::ThresholdZero);   
@@ -56,11 +57,7 @@ pub fn create_multisig_handler(ctx: Context<CreateMultisig>, strata: Vec<Stratum
             }
         }
 
-        require_gte!(owners.len(), stratum.m as usize, Errors::ThresholdExceeds);
-    }
-
-    for stratum in strata.iter_mut() {
-        stratum.owners.sort();
+        owners.sort();
     }
 
     let multi_sig = &mut ctx.accounts.multi_sig;
@@ -72,7 +69,7 @@ pub fn create_multisig_handler(ctx: Context<CreateMultisig>, strata: Vec<Stratum
     );
 
     **multi_sig = MultiSig::new(
-        strata, 
+        strata_mut, 
         authority_bump, 
         name,
         signer.key(),

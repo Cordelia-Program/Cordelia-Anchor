@@ -14,7 +14,7 @@ pub struct MultiSig {
 }
 
 impl MultiSig {
-    pub fn len(strata: Vec<Stratum>, name: &String) -> usize {
+    pub fn len(strata: &Vec<Stratum>, name: &String) -> usize {
         let mut size: usize = 8 + 4 + 4 + 4 + 1 + 1 + 32 + 1; //disc, vec, tx_count, creator, recovery and bumps
         
         for stratum in strata {
@@ -52,7 +52,7 @@ impl MultiSig {
     }
 
     pub fn realloc_bytes(&self, change_type: &ChangeReallocType) -> usize {
-        let req_len = MultiSig::len(self.strata.clone(), &self.name);
+        let req_len = MultiSig::len(&self.strata, &self.name);
 
         match change_type {
             ChangeReallocType::AddOwner { owner: _, stratum: _ } => req_len + 32,
