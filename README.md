@@ -2,9 +2,9 @@
 
 # Cordelia Program
 
-## Cordelia is an experimental Solana multi-sig program which lets you create multi-sig instances and execute transactions containing arbitrary instructions using CPI calls.
+## Cordelia is an experimental Solana multi-sig program which lets you create multi-sig instances and execute transactions containing arbitrary instructions using CPI calls. We have taken inspiration from Squads MPL program.
 
-Rather than a normal M-of-N owner scheme, Cordelia is created using Strata model. The owners of the multi-sig can be divided into different groups (known as Stratum) and threshold can be set separately for every stratum. To successfully execute any transaction, owners from every stratum have to vote in atleast equal to stratum's threshold count.
+Rather than a normal M-of-N owner scheme, Cordelia is created using Strata model. The owners of the multi-sig can be divided into different groups (known as Stratum) and threshold can be set separately for every stratum. To successfully execute any transaction, owners from every stratum have to vote in number atleast equal to stratum's threshold count.
 
 Program Address: 2h4ZQdRQESZETBWh6mC9pgLGca8ytMR5GcCqMsUACyyY (deployed on both mainnet and devnet)
 
@@ -24,7 +24,9 @@ Program Address: 2h4ZQdRQESZETBWh6mC9pgLGca8ytMR5GcCqMsUACyyY (deployed on both 
 
 - A transaction can be added to multi-sig using `create_transaction` instruction and increments the field in `transaction_count` in `multi_sig`.
 
-- TxData for a transaction can be created using either of the two instructions: `create_tx_data` for legacy transactions and `create_versioned_tx_data` for Version transactions. In `create_tx_data` instruction, accounts needed for the instruction are passed as an argument whereas in `create_versioned_tx_data`, accounts are passed in `remaining_accounts` array in a specified format. The status of the transaction is automatically turned to `Vote` once the associated `tx_data` account is created.
+- TxData for a transaction can be created using either of the two instructions: `create_tx_data` for legacy transactions and `create_versioned_tx_data` for Version transactions. In `create_tx_data` instruction, accounts needed for the instruction are passed as an argument whereas in `create_versioned_tx_data`, accounts are passed in `remaining_accounts` array in a specified format.
+
+- More accounts can be inserted into instructions saved in TxData account by using `add_tx_data` which accepts two arguments - vector of `InstructionAccount` and index of the instuction where accounts are to be inserted. The data in TxData can be finalized and transaction can be sent to vote using `finalize_tx_data` instruction.
 
 - `vote_transaction` instruction is used to vote for a transaction and the vote is expressed in the form of `bool` argument where `true` means accept and `false` means reject. If the number of rejected votes become more such that it is no longer possible to reach the threshold, the transaction's status is set to `Rejected` and no further interaction with the transaction is allowed. 
 
@@ -45,4 +47,3 @@ At this moment the constraints are set manually to avoid overflow but will be se
 - Max number of Stratums: 256
 - Max number of owners in Stratum: 1220
 - Max number of transactions in Multi-sig: u32::MAX
-- Max number of instructions in TxData: Depends upon the transaction size since the instructions can only be loaded in TxData once at this point of time.
